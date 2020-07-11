@@ -7,7 +7,17 @@ class ArticleField:
     """The `ArticleField` class for the Advanced Requirements."""
 
     def __init__(self, field_type: typing.Type[typing.Any]):
-        pass
+        self.field_type = field_type
+        self._attribute : field_type = None
+
+    def __get__(self, instance, owner):
+        return self._attribute
+
+    def __set__(self, instance, value):
+        if not issubclass(type(value), self.field_type):
+            raise TypeError(f"expected an instance of type '{self.field_type.__name__}' for attribute '{dir(instance)[26]}', got '{type(value).__name__}' instead")
+        self._attribute  = value
+
 
 
 class Article:
@@ -67,12 +77,3 @@ class Article:
 
     def __gt__(a,b):        
         return a.publication_date > b.publication_date
-
-# fairytale = Article(
-#     title="The emperor's new clothes",
-#     author="Hans Christian Andersen",
-#     content="'But he has nothing at all on!' at last cried out all the people. The Emperor was vexed, for he knew that the people were right.",
-#     publication_date=datetime.datetime(1837, 4, 7, 12, 15, 0),
-# )
-
-print()
