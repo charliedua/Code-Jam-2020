@@ -1,10 +1,8 @@
 import datetime
 import typing
 import re
-# from django.db import models
 
 
-# can leave the `ArticleField` class as-is if you do not wish to tackle the advanced requirements
 class ArticleField:
     """The `ArticleField` class for the Advanced Requirements."""
 
@@ -14,58 +12,67 @@ class ArticleField:
 
 class Article:
     """The `Article` class you need to write for the qualifier."""
-
-    # (title, author, content, and publication_date)
+    id = -1
     def __init__(self, title: str, author: str, publication_date: datetime.datetime, content: str):
+        Article.id += 1
+        self.id = Article.id
         self.title = title
         self.author = author
         self.publication_date = publication_date
-        self.content = content
+        self._content = content
+        self.last_edited = None
 
     def __repr__(self):
-        return f"<Article title=\"{self.title}\" author='{self.author}' publication_date='{publication_date.isoformat()}'>"
+        return f"<Article title=\"{self.title}\" author='{self.author}' publication_date='{self.publication_date.isoformat()}'>"
 
     def __len__(self):
-        return len(content)
+        return len(self.content)
 
     def short_introduction(self, n_characters):
-        if len(self.content) > n_characters + 1:
-            index = n_characters
-            if self.content[n_characters] == ' ':
-                return self.content[:n_characters]
+        if len(self._content) > n_characters + 1:
+            if self._content[n_characters] == ' ' or self._content[n_characters] == '\n':
+                return self._content[:n_characters]
             
+            index = n_characters
             while index > 0:
-                if self.content[index] == ' ':
-                    return self.content[:index]
+                if self._content[index] == ' '  or self._content[index] == '\n':
+                    return self._content[:index]
                 else:
                     index -= 1
             
-            return self.content[:n_characters]
+            return self._content[:n_characters]
 
     def most_common_words(self, n_words):
         final_dict = {}
-        words = re.findall(r"[\w]+", self.content.lower())
+        words = re.findall(r"[\w]+", self._content.lower())
         for word in words:
             if word in final_dict:
                 final_dict[word] += 1
             else:
                 final_dict[word] = 1
-                if len(final_dict) > n_words:
-                    del(final_dict[word])
-                    break
-        final_dict = dict(sorted(final_dict.items(), key=lambda kv: kv[1], reverse=True))
+        final_dict = dict(sorted(final_dict.items(), key=lambda kv: kv[1], reverse=True)[:n_words])
         return final_dict
 
-fairytale = Article(
-    title="The emperor's new clothes",
-    author="Hans Christian Andersen",
-    content="'But he has nothing at all on!' at last cried out all the people. The Emperor was vexed, for he knew that the people were right.",
-    publication_date=datetime.datetime(1837, 4, 7, 12, 15, 0),
-)
+    @property
+    def content(self):
+        return self._content
+
+    @content.setter
+    def content(self, new_content):
+        self.last_edited = datetime.datetime.now()
+        self._content = new_content
+
+    def __lt__(a,b):
+        return a.publication_date < b.publication_date
+
+    def __gt__(a,b):        
+        return a.publication_date > b.publication_date
+
+# fairytale = Article(
+#     title="The emperor's new clothes",
+#     author="Hans Christian Andersen",
+#     content="'But he has nothing at all on!' at last cried out all the people. The Emperor was vexed, for he knew that the people were right.",
+#     publication_date=datetime.datetime(1837, 4, 7, 12, 15, 0),
+# )
 
 print()
-
-
-
-
-# article = Article("new", "debug", datetime.datetime.now(), "kjabfk asdj fhgks adjhf")
