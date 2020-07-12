@@ -1,6 +1,7 @@
 import datetime
 import typing
 import re
+from typing import List
 
 
 class ArticleField:
@@ -8,16 +9,17 @@ class ArticleField:
 
     def __init__(self, field_type: typing.Type[typing.Any]):
         self.field_type = field_type
-        self._attribute : field_type = None
+        # self._attribute : field_type = None
+        self.__attribute_dict = {}
 
     def __get__(self, instance, owner):
-        return self._attribute
+        return self.__attribute_dict[instance.__hash__()]
 
     def __set__(self, instance, value):
         if not issubclass(type(value), self.field_type):
             raise TypeError(f"expected an instance of type '{self.field_type.__name__}' for attribute '{dir(instance)[26]}', got '{type(value).__name__}' instead")
-        self._attribute  = value
 
+        self.__attribute_dict[instance.__hash__()] = value
 
 
 class Article:
